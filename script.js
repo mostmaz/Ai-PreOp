@@ -154,7 +154,14 @@ function filterResultFields(investigations) {
   }
   document.querySelectorAll('#results-form .input-group[data-inv]').forEach(el => {
     const keywords = el.dataset.inv.split(' ');
-    const matched = keywords.some(kw => invText.includes(kw));
+    // Use whole-word regex so 'ecg' won't match inside 'glucose' etc.
+    const matched = keywords.some(kw => {
+      try {
+        return new RegExp(`\\b${kw}\\b`, 'i').test(invText);
+      } catch (e) {
+        return invText.includes(kw);
+      }
+    });
     el.style.display = matched ? '' : 'none';
   });
 }
