@@ -145,13 +145,7 @@ function formatDate(value) {
 function filterResultFields(investigations) {
   // Build a single lowercase string of all recommended investigation text
   const invText = (investigations || []).join(' ').toLowerCase();
-  // If no investigations at all, show everything (fallback)
-  if (!invText.trim()) {
-    document.querySelectorAll('#results-form .input-group[data-inv]').forEach(el => {
-      el.style.display = '';
-    });
-    return;
-  }
+
   document.querySelectorAll('#results-form .input-group[data-inv]').forEach(el => {
     const keywords = el.dataset.inv.split(' ');
     // Use whole-word regex so 'ecg' won't match inside 'glucose' etc.
