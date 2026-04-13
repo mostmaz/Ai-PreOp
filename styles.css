@@ -1,42 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* HSL Color System - Bioluminescent Dark Mode */
-  --h-cyan: 184;
-  --h-purple: 270;
-  --h-void: 220;
+  /* HSL Color System - Clinical Medical Palette */
+  --h-teal: 192;     /* Clinical teal */
+  --h-blue: 210;     /* Deep clinical blue */
+  --h-navy: 218;     /* Background navy */
 
   /* Background Palette */
-  --bg-void: hsl(var(--h-void), 20%, 3%);
-  --bg-panel: hsla(var(--h-void), 15%, 8%, 0.6);
-  --bg-panel-hover: hsla(var(--h-void), 15%, 12%, 0.8);
-  --bg-sidebar: hsla(var(--h-void), 20%, 6%, 0.8);
-  
+  --bg-void: hsl(var(--h-navy), 38%, 7%);
+  --bg-panel: hsla(var(--h-navy), 30%, 11%, 0.7);
+  --bg-panel-hover: hsla(var(--h-navy), 30%, 15%, 0.85);
+  --bg-sidebar: hsla(var(--h-navy), 35%, 8%, 0.85);
+
   /* Primary & Accents */
-  --cyan-glow: hsl(var(--h-cyan), 100%, 50%);
-  --cyan-dim: hsla(var(--h-cyan), 100%, 50%, 0.15);
-  --purple-glow: hsl(var(--h-purple), 100%, 65%);
-  --purple-dim: hsla(var(--h-purple), 100%, 65%, 0.15);
+  --cyan-glow: hsl(var(--h-teal), 65%, 48%);       /* Clinical teal — muted, professional */
+  --cyan-dim: hsla(var(--h-teal), 65%, 48%, 0.15);
+  --purple-glow: hsl(var(--h-blue), 70%, 62%);      /* Soft steel blue — secondary */
+  --purple-dim: hsla(var(--h-blue), 70%, 62%, 0.15);
 
   /* Typography / Ink */
-  --ink-primary: #ffffff;
-  --ink-secondary: hsla(220, 10%, 80%, 1);
-  --ink-muted: hsla(220, 10%, 60%, 1);
-  
+  --ink-primary: hsl(var(--h-navy), 20%, 95%);
+  --ink-secondary: hsla(var(--h-navy), 15%, 75%, 1);
+  --ink-muted: hsla(var(--h-navy), 10%, 55%, 1);
+
   /* Lines & Borders */
-  --line-glass: hsla(0, 0%, 100%, 0.08);
-  --line-luminous: hsla(var(--h-cyan), 100%, 50%, 0.3);
-  
+  --line-glass: hsla(0, 0%, 100%, 0.07);
+  --line-luminous: hsla(var(--h-teal), 65%, 48%, 0.35);
+
   /* Design Tokens */
   --radius-xl: 32px;
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 10px;
-  
-  --shadow-neon: 0 0 20px hsla(var(--h-cyan), 100%, 50%, 0.2), 0 0 40px hsla(var(--h-cyan), 100%, 50%, 0.1);
-  --shadow-neon-purple: 0 0 20px hsla(var(--h-purple), 100%, 65%, 0.2), 0 0 40px hsla(var(--h-purple), 100%, 65%, 0.1);
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
-  
+
+  --shadow-neon: 0 0 20px hsla(var(--h-teal), 65%, 48%, 0.2), 0 0 40px hsla(var(--h-teal), 65%, 48%, 0.08);
+  --shadow-neon-purple: 0 0 20px hsla(var(--h-blue), 70%, 62%, 0.2), 0 0 40px hsla(var(--h-blue), 70%, 62%, 0.08);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.55);
+
   --blur-strong: 30px;
   --blur-soft: 12px;
 }
@@ -75,13 +75,13 @@ body::after,
 body::before {
   top: -10%; left: -10%;
   width: 50vw; height: 50vw;
-  background: radial-gradient(circle, hsla(var(--h-purple), 100%, 65%, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, hsla(var(--h-blue), 70%, 62%, 0.1) 0%, transparent 70%);
 }
 
 body::after {
   bottom: -20%; right: -10%;
   width: 60vw; height: 60vw;
-  background: radial-gradient(circle, hsla(var(--h-cyan), 100%, 50%, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, hsla(var(--h-teal), 65%, 48%, 0.08) 0%, transparent 70%);
   animation-delay: -10s;
 }
 

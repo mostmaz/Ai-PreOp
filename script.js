@@ -142,6 +142,23 @@ function formatDate(value) {
   return new Date(value).toLocaleString();
 }
 
+function filterResultFields(investigations) {
+  // Build a single lowercase string of all recommended investigation text
+  const invText = (investigations || []).join(' ').toLowerCase();
+  // If no investigations at all, show everything (fallback)
+  if (!invText.trim()) {
+    document.querySelectorAll('#results-form .input-group[data-inv]').forEach(el => {
+      el.style.display = '';
+    });
+    return;
+  }
+  document.querySelectorAll('#results-form .input-group[data-inv]').forEach(el => {
+    const keywords = el.dataset.inv.split(' ');
+    const matched = keywords.some(kw => invText.includes(kw));
+    el.style.display = matched ? '' : 'none';
+  });
+}
+
 function renderInvestigationPlan(data, intake) {
   const riskBadgeClass =
     data.riskLevel === "higher"
@@ -175,6 +192,9 @@ function renderInvestigationPlan(data, intake) {
     <p><strong>AI status:</strong> ${data.aiMessage || "No status provided."}</p>
     <p><strong>Clinical note:</strong> ${data.disclaimer || "Decision support only."}</p>
   `;
+
+  // Filter the results form to only show requested investigation fields
+  filterResultFields(data.investigations);
 }
 
 function renderFinalAssessment(data) {
@@ -341,6 +361,7 @@ async function loadPatient(patientId) {
     renderInvestigationPlan(patient.intakeAssessment, patient.intake);
   } else {
     resetOutputs();
+    filterResultFields([]); // show all fields when no AI plan yet
   }
   renderFinalAssessment(patient.finalAssessment);
   updateHeader();
@@ -358,6 +379,7 @@ function newPatient() {
   document.getElementById("asthmaMedicationStatus").value = "unknown";
   document.getElementById("asthmaSymptoms").value = "none";
   resetOutputs();
+  filterResultFields([]); // show all fields for new patient
   updateHeader();
   toggleMedicationCards();
   setActiveStep("intake-step");
