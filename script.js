@@ -14,7 +14,7 @@ const saveStatus = document.getElementById("save-status");
 const newPatientBtn = document.getElementById("new-patient-btn");
 const goToResultsBtn = document.getElementById("go-to-results-btn");
 const stepButtons = Array.from(document.querySelectorAll(".stepper-item"));
-const steps = Array.from(document.querySelectorAll(".workflow-step"));
+const steps = Array.from(document.querySelectorAll(".step-content"));
 const sidebar = document.getElementById("sidebar");
 const sidebarToggle = document.getElementById("sidebar-toggle");
 const backButtons = Array.from(document.querySelectorAll(".btn-back"));
@@ -100,33 +100,37 @@ function renderLoading(target, message) {
 
 function setGlobalLoading(visible, title, copy) {
   if (visible) {
-    pageLoader.querySelector(".loader-title").textContent = title || "AI is working";
-    pageLoader.querySelector(".loader-copy").textContent = copy || "Please wait...";
+    const titleEl = pageLoader.querySelector(".loader-title");
+    const descEl = pageLoader.querySelector(".loader-desc");
+    if (titleEl) titleEl.textContent = title || "AI is working";
+    if (descEl) descEl.textContent = copy || "Please wait...";
     pageLoader.classList.remove("hidden");
-    pageLoader.setAttribute("aria-hidden", "false");
     return;
   }
-
   pageLoader.classList.add("hidden");
-  pageLoader.setAttribute("aria-hidden", "true");
 }
 
 function setActiveStep(stepId) {
-  steps.forEach((step) => step.classList.toggle("active-step", step.id === stepId));
+  steps.forEach((step) => step.classList.toggle("active", step.id === stepId));
   stepButtons.forEach((button) =>
     button.classList.toggle("active", button.dataset.stepTarget === stepId)
   );
-  // Auto-scroll to top of workflow phase for better orientation
+  // Animate the stepper indicator to the active button
+  const activeBtn = stepButtons.find(b => b.dataset.stepTarget === stepId);
+  const indicator = document.getElementById('stepper-indicator');
+  if (activeBtn && indicator) {
+    const stepper = activeBtn.closest('.stepper-glow');
+    const stepperRect = stepper.getBoundingClientRect();
+    const btnRect = activeBtn.getBoundingClientRect();
+    const offsetLeft = btnRect.left - stepperRect.left;
+    indicator.style.transform = `translateX(${offsetLeft - 6}px)`;
+    indicator.style.width = `${btnRect.width}px`;
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function toggleSidebar() {
+  if (!sidebarToggle) return;
   sidebar.classList.toggle("collapsed");
-  const icon = sidebarToggle.querySelector("svg path");
-  if (sidebar.classList.contains("collapsed")) {
-    icon.setAttribute("d", "M9 18l6-6-6-6"); // Right arrow
-  } else {
-    icon.setAttribute("d", "M15 18l-6-6 6-6"); // Left arrow
-  }
 }
 
 function capitalize(value) {
@@ -293,17 +297,15 @@ function populateResultsForm(results = {}) {
 
 function renderPatientList(patients) {
   if (!patients.length) {
-    patientList.className = "patient-list empty-state";
-    patientList.textContent = "No patients saved yet.";
+    patientList.innerHTML = `<div class="empty-state" style="padding:24px;font-size:0.9rem;">No patients saved yet.</div>`;
     return;
   }
 
-  patientList.className = "patient-list";
   patientList.innerHTML = patients
     .map(
       (patient) => `
         <button class="patient-item ${
-          state.activePatient?.id === patient.id ? "active-patient-item" : ""
+          state.activePatient?.id === patient.id ? "active" : ""
         }" type="button" data-patient-id="${patient.id}">
           <div class="patient-item-title">${patient.patientLabel}</div>
           <div class="patient-item-meta">
@@ -365,12 +367,11 @@ function newPatient() {
 async function checkBackend() {
   try {
     const data = await requestJson("/api/health", { cache: "no-store" });
-    backendStatus.className = "status-chip status-ok";
-    backendStatus.textContent = `Backend connected: ${data.model}`;
+    backendStatus.className = "backend-indicator status-ok";
+    backendStatus.innerHTML = `<span class="indicator-dot"></span>Backend connected: ${data.model}`;
   } catch {
-    backendStatus.className = "status-chip status-error";
-    backendStatus.textContent =
-      "Backend not reachable. Open the app from http://localhost:3000, not directly from the file.";
+    backendStatus.className = "backend-indicator status-error";
+    backendStatus.innerHTML = `<span class="indicator-dot"></span>Backend not reachable — open from http://localhost:3000`;
   }
 }
 
@@ -385,7 +386,7 @@ stepButtons.forEach((button) =>
 newPatientBtn.addEventListener("click", newPatient);
 goToResultsBtn.addEventListener("click", () => setActiveStep("results-step"));
 
-sidebarToggle.addEventListener("click", toggleSidebar);
+if (sidebarToggle) sidebarToggle.addEventListener("click", toggleSidebar);
 
 backButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
