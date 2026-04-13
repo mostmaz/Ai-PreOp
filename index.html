@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pre-Op Anesthesia AI Check</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="page-loader" class="page-loader hidden" aria-live="polite" aria-hidden="true">
+      <div class="loader-orb"></div>
+      <div>
+        <p class="loader-title">AI is generating the investigation request</p>
+        <p class="loader-copy">Reviewing intake findings, assigning risk context, and building the recommended workup.</p>
+      </div>
+    </div>
+
+    <div class="app-shell app-shell-wide">
+      <header class="hero">
+        <div class="hero-copy-block">
+          <p class="eyebrow">Clinical Workflow Prototype</p>
+          <h1>AI Pre-Op Case Workflow</h1>
+          <p class="hero-copy">
+            Save patients, revisit them when investigations return, and move through
+            the anesthesia assessment in clear clinical steps.
+          </p>
+          <div class="hero-actions">
+            <div class="mini-stat">
+              <span class="mini-stat-label">Mode</span>
+              <span class="mini-stat-value">Case Tracking</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">Flow</span>
+              <span class="mini-stat-value">Intake -> Request -> Results -> ASA</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <p class="hero-stat-label">Backend</p>
+          <p class="hero-stat-value">Saved patient workflow</p>
+          <p class="hero-stat-note">
+            Keep cases on file and reopen them when investigation results come back.
+          </p>
+          <div id="backend-status" class="status-chip status-pending">
+            Checking backend connection...
+          </div>
+        </div>
+      </header>
+
+      <main class="workspace-layout">
+        <aside class="panel sidebar-panel" id="sidebar">
+          <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Toggle Sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <div class="sidebar-content">
+            <div class="panel-heading">
+              <span class="step-tag">Patients</span>
+              <h2>Saved Cases</h2>
+              <p>Open an existing patient or start a new one.</p>
+            </div>
+            <div class="sidebar-actions">
+              <button id="new-patient-btn" type="button" class="primary secondary-button">
+                New Patient
+              </button>
+            </div>
+            <div id="patient-list" class="patient-list empty-state">
+              No patients saved yet.
+            </div>
+          </div>
+        </aside>
+
+        <section class="main-workflow">
+          <div class="panel workflow-topbar">
+            <div>
+              <p class="eyebrow">Active Case</p>
+              <h2 id="active-patient-title">Create a new patient</h2>
+              <p id="active-patient-subtitle" class="workflow-subtitle">
+                Start with first-visit intake, then save the case for follow-up.
+              </p>
+            </div>
+            <div class="stepper" id="stepper">
+              <button class="stepper-item active" data-step-target="intake-step" data-step-num="1" type="button">Intake</button>
+              <button class="stepper-item" data-step-target="investigation-step" data-step-num="2" type="button">Request</button>
+              <button class="stepper-item" data-step-target="results-step" data-step-num="3" type="button">Results</button>
+              <button class="stepper-item" data-step-target="final-step" data-step-num="4" type="button">ASA</button>
+            </div>
+          </div>
+
+          <section id="intake-step" class="panel workflow-step active-step panel-accent">
+            <div class="panel-heading">
+              <span class="step-tag">Step 1</span>
+              <h2>First Visit Intake</h2>
+              <p>Collect the patient profile and save the initial assessment.</p>
+            </div>
+            <form id="intake-form" class="form-grid">
+              <label>
+                <span>Patient name / ID</span>
+                <input type="text" id="patientId" placeholder="Required for saved case" />
+              </label>
+              <label>
+                <span>Age</span>
+                <input type="number" id="age" min="0" max="120" />
+              </label>
+              <label>
+                <span>Sex</span>
+                <select id="sex">
+                  <option value="">Select</option>
+                  <option>Female</option>
+                  <option>Male</option>
+                </select>
+              </label>
+              <label>
+                <span>Procedure risk</span>
+                <select id="surgeryRisk">
+                  <option value="low">Low</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="high">High</option>
+                </select>
+              </label>
+              <label>
+                <span>Pulse rate</span>
+                <input type="number" id="pr" min="20" max="220" />
+              </label>
+              <label>
+                <span>Blood pressure</span>
+                <input type="text" id="bp" placeholder="e.g. 145/90" />
+              </label>
+              <label>
+                <span>SpO2 (%)</span>
+                <input type="number" id="spo2" min="50" max="100" />
+              </label>
+              <label>
+                <span>Previous anesthesia experience</span>
+                <select id="previousAnesthesia">
+                  <option value="none">None</option>
+                  <option value="uneventful">Uneventful</option>
+                  <option value="complicated">Complicated</option>
+                </select>
+              </label>
+              <label class="full-span">
+                <span>Drug history</span>
+                <textarea id="drugHistory" rows="3" placeholder="Anticoagulants, insulin, beta blockers, steroids, inhalers..."></textarea>
+              </label>
+
+              <div id="condition-medication-section" class="full-span condition-med-grid">
+                <div id="htn-med-card" class="condition-card hidden">
+                  <h3>Hypertension Treatment</h3>
+                  <label>
+                    <span>Current antihypertensive medication</span>
+                    <input type="text" id="htnMedication" placeholder="e.g. amlodipine, losartan" />
+                  </label>
+                  <label>
+                    <span>Medication status</span>
+                    <select id="htnMedicationStatus">
+                      <option value="unknown">Unknown</option>
+                      <option value="taking">Taking medication</option>
+                      <option value="not-taking">Not taking medication</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div id="dm-med-card" class="condition-card hidden">
+                  <h3>Diabetes Treatment</h3>
+                  <label>
+                    <span>Current diabetes medication</span>
+                    <input type="text" id="dmMedication" placeholder="e.g. metformin, insulin" />
+                  </label>
+                  <label>
+                    <span>Medication status</span>
+                    <select id="dmMedicationStatus">
+                      <option value="unknown">Unknown</option>
+                      <option value="taking">Taking medication</option>
+                      <option value="not-taking">Not taking medication</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div id="asthma-med-card" class="condition-card hidden">
+                  <h3>Asthma Treatment</h3>
+                  <label>
+                    <span>Current asthma medication</span>
+                    <input type="text" id="asthmaMedication" placeholder="e.g. salbutamol, ICS/LABA" />
+                  </label>
+                  <label>
+                    <span>Medication status</span>
+                    <select id="asthmaMedicationStatus">
+                      <option value="unknown">Unknown</option>
+                      <option value="taking">Taking medication</option>
+                      <option value="not-taking">Not taking medication</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Respiratory symptoms</span>
+                    <select id="asthmaSymptoms">
+                      <option value="none">No active symptoms</option>
+                      <option value="mild">Mild symptoms</option>
+                      <option value="significant">Significant symptoms</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              <label class="full-span">
+                <span>Medical notes / key history</span>
+                <textarea id="medicalNotes" rows="3" placeholder="Stroke, MI, CKD, liver disease, seizure disorder, OSA..."></textarea>
+              </label>
+
+              <fieldset class="full-span checkbox-group">
+                <legend>Comorbidities and relevant conditions</legend>
+                <label><input type="checkbox" value="htn" /> Hypertension</label>
+                <label><input type="checkbox" value="dm" /> Diabetes</label>
+                <label><input type="checkbox" value="cns" /> CNS event</label>
+                <label><input type="checkbox" value="asthma" /> Asthma</label>
+                <label><input type="checkbox" value="resp" /> Respiratory disease</label>
+                <label><input type="checkbox" value="blood" /> Blood disease</label>
+                <label><input type="checkbox" value="cath" /> Cardiac catheter history</label>
+                <label><input type="checkbox" value="arrhythmia" /> Arrhythmia</label>
+                <label><input type="checkbox" value="thyroid" /> Thyroid disease</label>
+                <label><input type="checkbox" value="smoking" /> Smoking</label>
+                <label><input type="checkbox" value="renal" /> Renal disease</label>
+                <label><input type="checkbox" value="liver" /> Liver disease</label>
+                <label><input type="checkbox" value="obesity" /> Obesity</label>
+                <label><input type="checkbox" value="osa" /> Obstructive sleep apnea</label>
+              </fieldset>
+
+              <fieldset class="full-span checkbox-group">
+                <legend>Examination findings</legend>
+                <label><input type="checkbox" value="cardiacMurmur" /> Abnormal cardiac auscultation</label>
+                <label><input type="checkbox" value="chestAbnormal" /> Abnormal chest auscultation</label>
+                <label><input type="checkbox" value="basalCrackles" /> Basal crackles</label>
+                <label><input type="checkbox" value="airwayConcern" /> Airway concern</label>
+                <label><input type="checkbox" value="edema" /> Peripheral edema</label>
+              </fieldset>
+
+              <div class="full-span actions split-actions">
+                <span id="save-status" class="inline-note">This case has not been saved yet.</span>
+                <div class="nav-buttons">
+                  <button type="submit" class="primary">Save and Generate Request</button>
+                </div>
+              </div>
+            </form>
+          </section>
+
+          <section id="investigation-step" class="panel workflow-step panel-highlight">
+            <div class="panel-heading">
+              <span class="step-tag">Step 2</span>
+              <h2>AI Investigation Request</h2>
+              <p>Review the investigation plan generated from the saved first visit.</p>
+            </div>
+            <div id="investigation-output" class="empty-state">
+              Save the intake first to generate and store the investigation request.
+            </div>
+            <div class="actions top-gap nav-buttons">
+              <button type="button" class="primary btn-back" data-goto="intake-step">Back to Intake</button>
+              <button id="go-to-results-btn" type="button" class="primary">
+                Continue to Results
+              </button>
+            </div>
+          </section>
+
+          <section id="results-step" class="panel workflow-step">
+            <div class="panel-heading">
+              <span class="step-tag">Step 3</span>
+              <h2>Returned Investigation Results</h2>
+              <p>Enter results when the patient comes back for reassessment.</p>
+            </div>
+            <form id="results-form" class="form-grid">
+              <label><span>Hemoglobin (g/dL)</span><input type="number" id="hb" step="0.1" /></label>
+              <label><span>WBC</span><input type="number" id="wbc" step="0.1" /></label>
+              <label><span>Platelets</span><input type="number" id="platelets" step="1" /></label>
+              <label><span>Creatinine (mg/dL)</span><input type="number" id="creatinine" step="0.1" /></label>
+              <label><span>Sodium (mmol/L)</span><input type="number" id="sodium" step="1" /></label>
+              <label><span>Potassium (mmol/L)</span><input type="number" id="potassium" step="0.1" /></label>
+              <label><span>Random glucose (mg/dL)</span><input type="number" id="glucose" step="1" /></label>
+              <label><span>HbA1c (%)</span><input type="number" id="hba1c" step="0.1" /></label>
+              <label><span>INR</span><input type="number" id="inr" step="0.1" /></label>
+              <label><span>TSH</span><input type="number" id="tsh" step="0.1" /></label>
+              <label>
+                <span>ECG result</span>
+                <select id="ecgResult">
+                  <option value="">Not entered</option>
+                  <option value="normal">Normal</option>
+                  <option value="minor">Minor abnormalities</option>
+                  <option value="major">Major abnormalities</option>
+                </select>
+              </label>
+              <label>
+                <span>Chest X-ray</span>
+                <select id="cxrResult">
+                  <option value="">Not entered</option>
+                  <option value="normal">Normal</option>
+                  <option value="minor">Minor abnormalities</option>
+                  <option value="major">Major abnormalities</option>
+                </select>
+              </label>
+              <label>
+                <span>Echocardiography</span>
+                <select id="echoResult">
+                  <option value="">Not entered</option>
+                  <option value="normal">Normal</option>
+                  <option value="mild">Mild dysfunction</option>
+                  <option value="significant">Significant dysfunction</option>
+                </select>
+              </label>
+              <label class="full-span">
+                <span>Additional result notes</span>
+                <textarea id="resultNotes" rows="3" placeholder="ABG, troponin, coagulation profile, pulmonary function, consultant opinions..."></textarea>
+              </label>
+              <div class="full-span actions split-actions">
+                <span class="inline-note">Results are saved back into the patient record.</span>
+                <div class="nav-buttons">
+                  <button type="button" class="primary btn-back" data-goto="investigation-step">Back</button>
+                  <button type="submit" class="primary">Save and Generate ASA</button>
+                </div>
+              </div>
+            </form>
+          </section>
+
+          <section id="final-step" class="panel workflow-step panel-highlight">
+            <div class="panel-heading">
+              <span class="step-tag">Step 4</span>
+              <h2>Optimization and ASA</h2>
+              <p>Use this saved reassessment whenever the case is reviewed again.</p>
+            </div>
+            <div id="final-output" class="empty-state">
+              Save results to generate a stored optimization and ASA summary.
+            </div>
+            <div class="nav-buttons">
+              <button type="button" class="primary btn-back" data-goto="results-step">Back to Results</button>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
