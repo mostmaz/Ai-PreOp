@@ -21,6 +21,7 @@ const backButtons = Array.from(document.querySelectorAll(".btn-back"));
 
 const state = {
   activePatient: null,
+  allPatients: [],
 };
 
 function getCheckedValuesByLegend(legendText) {
@@ -350,7 +351,8 @@ function renderPatientList(patients) {
 
 async function refreshPatientList() {
   const data = await requestJson("/api/patients");
-  renderPatientList(data.patients || []);
+  state.allPatients = data.patients || [];
+  renderPatientList(state.allPatients);
 }
 
 async function loadPatient(patientId) {
@@ -410,6 +412,18 @@ newPatientBtn.addEventListener("click", newPatient);
 goToResultsBtn.addEventListener("click", () => setActiveStep("results-step"));
 
 if (sidebarToggle) sidebarToggle.addEventListener("click", toggleSidebar);
+
+const searchInput = document.getElementById("patient-search");
+if (searchInput) {
+  searchInput.addEventListener("input", (e) => {
+    const term = e.target.value.toLowerCase();
+    const filtered = state.allPatients.filter(p => 
+      (p.patientLabel || "").toLowerCase().includes(term) || 
+      (p.id || "").toLowerCase().includes(term)
+    );
+    renderPatientList(filtered);
+  });
+}
 
 backButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
