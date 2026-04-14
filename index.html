@@ -40,10 +40,14 @@
             <p>Open an existing patient or start a new assessment.</p>
           </div>
 
-          <button id="new-patient-btn" type="button" class="btn btn-neon" style="width:100%;">
+          <button id="new-patient-btn" type="button" class="btn btn-neon" style="width:100%; margin-bottom: 24px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             New Patient
           </button>
+          
+          <div class="input-group" style="margin-bottom: 16px;">
+            <input type="text" id="patient-search" placeholder="Search saved cases..." style="width:100%;"/>
+          </div>
 
           <div id="patient-list" class="patient-list">
             <div class="empty-state" style="padding: 24px; font-size: 0.9rem;">
@@ -335,6 +339,14 @@
                   <div class="input-group" data-inv="tsh thyroid tfts">
                     <label for="tsh">TSH (mU/L)</label>
                     <input type="number" id="tsh" step="0.1" placeholder="e.g. 2.5" />
+                  </div>
+                  <div class="input-group" data-inv="virology hepatitis hiv virus viral screening">
+                    <label for="virologyResult">Virology Screen</label>
+                    <select id="virologyResult">
+                      <option value="">Not entered</option>
+                      <option value="negative">Negative / Normal</option>
+                      <option value="positive">Positive / Abnormal</option>
+                    </select>
                   </div>
                   <div class="input-group" data-inv="ecg ekg electrocardiogram electrocardiograph">
                     <label for="ecgResult">ECG Result</label>

@@ -239,15 +239,10 @@ function scoreRisk(intake) {
     reasons.push("Antithrombotic therapy may require perioperative interruption planning.");
   }
 
-  if (surgeryGrade === "major") {
-    investigations.add("CBC");
-    reasons.push("Major surgery generally merits a full blood count under NICE-style preoperative testing.");
-  }
-
-  if (surgeryGrade === "intermediate" && (baselineASA >= 2 || intake.conditions.includes("dm") || intake.conditions.includes("renal"))) {
-    investigations.add("CBC");
-    reasons.push("Intermediate surgery with comorbidity or ASA 2+ supports a full blood count.");
-  }
+  // Always require CBC and Virology based on updated protocol
+  investigations.add("CBC");
+  investigations.add("Virology");
+  reasons.push("CBC and Virology are requested as mandatory routine tests per local protocol.");
 
   if (surgeryGrade === "major" && (baselineASA >= 2 || hasRenalRisk)) {
     investigations.add("Renal function and electrolytes");

@@ -157,6 +157,7 @@ Be concise, clinically structured, and avoid overclaiming.
 Use a NICE NG45 style approach:
 - Do not order routine blanket tests.
 - Base tests on surgery severity, baseline ASA/comorbidity burden, medications, and specific triggers.
+- MUST ALWAYS request 'CBC' and 'Virology' for every patient, regardless of health.
 - ECG is not routine for healthy minor cases.
 - Chest X-ray is not routine; use only for cardiopulmonary disease or new respiratory findings/symptoms.
 - Coagulation tests are only for bleeding risk, liver disease, or anticoagulants.
