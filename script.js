@@ -44,11 +44,13 @@ function parseBP(bpText) {
 
 function collectIntake() {
   const conditions = getCheckedValuesByLegend("Comorbidities and relevant conditions");
+  const highRiskMeds = getCheckedValuesByLegend("High-Risk Perioperative Medications");
   return {
     patientId: document.getElementById("patientId").value.trim(),
     age: Number(document.getElementById("age").value) || 0,
     sex: document.getElementById("sex").value,
     surgeryRisk: document.getElementById("surgeryRisk").value,
+    functionalCapacity: document.getElementById("functionalCapacity").value,
     pr: Number(document.getElementById("pr").value) || null,
     bp: parseBP(document.getElementById("bp").value),
     spo2: Number(document.getElementById("spo2").value) || null,
@@ -56,6 +58,7 @@ function collectIntake() {
     drugHistory: document.getElementById("drugHistory").value.trim(),
     medicalNotes: document.getElementById("medicalNotes").value.trim(),
     conditions,
+    highRiskMeds,
     exam: getCheckedValuesByLegend("Examination findings"),
     conditionTherapy: {
       htn: {
@@ -191,7 +194,15 @@ function renderInvestigationPlan(data, intake) {
     <ul class="clean-list">
       ${(data.optimizationFlags || []).map((item) => `<li>${item}</li>`).join("")}
     </ul>
-    <p><strong>AI status:</strong> ${data.aiMessage || "No status provided."}</p>
+    ${data.medicationSchedule && data.medicationSchedule.length > 0 ? `
+    <div style="margin-top: 24px; padding: 20px; background: hsla(var(--h-gold), 70%, 54%, 0.05); border: 1px solid hsla(var(--h-gold), 70%, 54%, 0.3); border-radius: var(--radius-md);">
+      <h4 style="margin-top: 0; color: var(--accent-gold);">Preoperative Medication Checklist</h4>
+      <ul class="clean-list" style="margin-bottom: 0;">
+        ${data.medicationSchedule.map(item => `<li style="border-left-color: var(--accent-gold);">${item}</li>`).join("")}
+      </ul>
+      <p style="margin-top: 12px; margin-bottom: 0; font-size: 0.8rem; color: var(--ink-muted);">Note: Rules-based medication guidance. Confirm with operating clinician and local policy.</p>
+    </div>` : ""}
+    <p style="margin-top: 24px;"><strong>AI status:</strong> ${data.aiMessage || "No status provided."}</p>
     <p><strong>Clinical note:</strong> ${data.disclaimer || "Decision support only."}</p>
   `;
 
@@ -275,6 +286,7 @@ function populateIntakeForm(intake = {}) {
   document.getElementById("age").value = intake.age || "";
   document.getElementById("sex").value = intake.sex || "";
   document.getElementById("surgeryRisk").value = intake.surgeryRisk || "low";
+  document.getElementById("functionalCapacity").value = intake.functionalCapacity || "unknown";
   document.getElementById("pr").value = intake.pr || "";
   document.getElementById("bp").value = intake.bp ? `${intake.bp.systolic}/${intake.bp.diastolic}` : "";
   document.getElementById("spo2").value = intake.spo2 || "";
@@ -286,7 +298,9 @@ function populateIntakeForm(intake = {}) {
     .querySelectorAll('fieldset input[type="checkbox"]')
     .forEach((input) => {
       input.checked =
-        (intake.conditions || []).includes(input.value) || (intake.exam || []).includes(input.value);
+        (intake.conditions || []).includes(input.value) || 
+        (intake.exam || []).includes(input.value) ||
+        (intake.highRiskMeds || []).includes(input.value);
     });
 
   document.getElementById("htnMedication").value = intake.conditionTherapy?.htn?.medication || "";
@@ -375,6 +389,7 @@ function newPatient() {
   state.activePatient = null;
   intakeForm.reset();
   resultsForm.reset();
+  document.getElementById("functionalCapacity").value = "unknown";
   document.getElementById("surgeryRisk").value = "low";
   document.getElementById("previousAnesthesia").value = "none";
   document.getElementById("htnMedicationStatus").value = "unknown";

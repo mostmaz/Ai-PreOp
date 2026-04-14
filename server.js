@@ -169,9 +169,12 @@ Required JSON schema:
   "riskLevel": "lower|moderate|higher",
   "investigations": ["string"],
   "rationale": ["string"],
+  "medicationSchedule": ["string"],
   "optimizationFlags": ["string"],
   "disclaimer": "string"
 }
+
+Provide specific stop/continue instructions in 'medicationSchedule' for any drugs listed in the intake 'highRiskMeds' array (e.g., SGLT2 inhibitors).
 
 Use this deterministic baseline as guardrails:
 ${JSON.stringify(fallback, null, 2)}

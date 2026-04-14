@@ -143,6 +143,14 @@
                       <option value="complicated">Complicated</option>
                     </select>
                   </div>
+                  <div class="input-group">
+                    <label for="functionalCapacity">Functional Capacity (METs)</label>
+                    <select id="functionalCapacity">
+                      <option value="unknown">Unknown</option>
+                      <option value=">4">&ge;4 METs (Can climb 2 flights of stairs)</option>
+                      <option value="<4">&lt;4 METs (Cannot climb 2 flights)</option>
+                    </select>
+                  </div>
                   <div class="input-group full-span">
                     <label for="drugHistory">Drug History</label>
                     <textarea id="drugHistory" rows="3" placeholder="Anticoagulants, insulin, beta blockers, steroids, inhalers..."></textarea>
@@ -151,6 +159,19 @@
                     <label for="medicalNotes">Medical Notes / Key History</label>
                     <textarea id="medicalNotes" rows="3" placeholder="Stroke, MI, CKD, liver disease, seizure disorder, OSA..."></textarea>
                   </div>
+                </div>
+
+                <!-- High-Risk Perioperative Medications -->
+                <div style="margin-top: 32px;">
+                  <p class="group-label eyebrow" style="margin-bottom:16px; display:block;">High-Risk Perioperative Medications</p>
+                  <fieldset class="checkbox-grid" style="border:none; margin:0; padding:0;">
+                    <legend class="visually-hidden">High-Risk Perioperative Medications</legend>
+                    <label class="check-label"><input type="checkbox" value="sglt2" /> SGLT2 Inhibitor</label>
+                    <label class="check-label"><input type="checkbox" value="acei_arb" /> ACE Inhibitor / ARB</label>
+                    <label class="check-label"><input type="checkbox" value="anticoagulant" /> Anticoagulant (DOAC/Warfarin)</label>
+                    <label class="check-label"><input type="checkbox" value="antiplatelet" /> Antiplatelet (e.g., Clopidogrel)</label>
+                    <label class="check-label"><input type="checkbox" value="metformin" /> Metformin</label>
+                  </fieldset>
                 </div>
 
                 <!-- Comorbidities -->

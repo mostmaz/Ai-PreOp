@@ -92,6 +92,16 @@ function scoreRisk(intake) {
     reasons.push(`Procedure is ${surgeryGrade} severity.`);
   }
 
+  if (intake.functionalCapacity === "<4") {
+    score += 2;
+    reasons.push("Poor functional capacity (<4 METs) increases perioperative cardiovascular and respiratory risk.");
+    optimization.push("Functional capacity <4 METs; consider targeted cardiac or pulmonary assessment if undergoing intermediate/major surgery.");
+    
+    if (["intermediate", "major"].includes(surgeryGrade)) {
+      investigations.add("ECG");
+    }
+  }
+
   if (intake.conditions.includes("htn")) {
     score += 1;
     investigations.add("ECG");
@@ -468,8 +478,32 @@ function generateOptimization(intake, results) {
   return { actions, warnings };
 }
 
+function generateMedicationSchedule(intake) {
+  const schedule = [];
+  const meds = intake.highRiskMeds || [];
+
+  if (meds.includes("sglt2")) {
+    schedule.push("SGLT2 Inhibitor (e.g. Empagliflozin/Dapagliflozin): STOP 3 to 4 days prior to surgery due to risk of euglycemic ketoacidosis.");
+  }
+  if (meds.includes("acei_arb")) {
+    schedule.push("ACE Inhibitor / ARB: OMIT morning dose on the day of surgery to prevent severe intraoperative hypotension.");
+  }
+  if (meds.includes("metformin")) {
+    schedule.push("Metformin: OMIT morning dose on the day of surgery. Restart when normal diet resumes and renal function is stable.");
+  }
+  if (meds.includes("antiplatelet")) {
+    schedule.push("Antiplatelet (Clopidogrel, Ticagrelor): Discuss with cardiologist/surgeon. Often STOP 5-7 days before major surgery if not high cardiac risk.");
+  }
+  if (meds.includes("anticoagulant")) {
+    schedule.push("Anticoagulant (Warfarin/DOAC): STOP medication according to specific drug half-life and surgical bleeding risk. Establish bridging plan if indicated.");
+  }
+
+  return schedule;
+}
+
 function buildFallbackIntakeResponse(intake) {
   const assessment = scoreRisk(intake);
+  const medicationSchedule = generateMedicationSchedule(intake);
   const riskLevel =
     assessment.score <= 2
       ? "lower"
@@ -486,6 +520,9 @@ function buildFallbackIntakeResponse(intake) {
     surgeryGrade: assessment.surgeryGrade,
     investigations: assessment.investigations,
     rationale: assessment.reasons,
+    medicationSchedule: medicationSchedule.length 
+      ? medicationSchedule 
+      : ["No standard high-risk perioperative modifications identified from checklist."],
     optimizationFlags: assessment.optimizationHints.length
       ? assessment.optimizationHints
       : ["No immediate optimization flag from baseline data."],
